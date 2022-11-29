@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      overflow: hidden;
+      margin: 0px;
+    }
+
+    main {
+      height: 100vh;
+
+    }
+  </style>
+</head>
+
+<body>
+  <main id="earth-viewer">
+  </main>
+  <script defer>
+    async function start(app) {
+      app.viewer.addTasks({
+        parallelTasks: [
+          {
+            task: async () => {
+              await app.viewer.loadIbl('./assets/room_rgbd_irradiance.dds', './assets/room_rgbd_radiance.dds');
+              app.viewer.setIblInViewSpace();
+            }
+          }
+        ]
+      });
+      await app.viewer.launch();
+      await app.start();
+    }
+  </script>
+  <script defer type="module" src="./main.js" app-callback="start"></script>
+</body>
+
+</html>

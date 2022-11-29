@@ -1,0 +1,21 @@
+name: Bump
+on: 
+  push:
+    tags:
+      - 'v*'
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - run: npm install
+      - run: npm run build -- --output-public-path https://app.pierrelespingal.com/earth/${{ github.ref_name }}/
+      - uses: garygrossgarten/github-action-scp@release
+        with:
+          local: dist
+          remote: app/earth/${{ github.ref_name }}
+          rmRemote: true
+          host: ${{ secrets.HOST }}
+          port: ${{ secrets.PORT }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
