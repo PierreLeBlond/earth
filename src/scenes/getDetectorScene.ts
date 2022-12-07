@@ -1,8 +1,8 @@
-import { THREE, Viewer } from '@s0rt/3d-viewer';
+import { Scene, THREE, Viewer } from '@s0rt/3d-viewer';
 import fragmentShader from '../assets/shaders/detector.fragment.glsl';
 import vertexShader from '../assets/shaders/detector.vertex.glsl';
 
-export function getDetectorScene(viewer: Viewer, width: number, height: number) {
+export function getDetectorScene(viewer: Viewer, width: number, height: number): Scene {
   const uniforms: { [key: string]: THREE.Uniform } = { map: { type: 't', value: null, dynamic: false, onUpdate: null } };
   const material = new THREE.ShaderMaterial(
     { uniforms, vertexShader, fragmentShader });

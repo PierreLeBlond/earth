@@ -1,4 +1,4 @@
-import { PublicViewer, THREE, Viewer } from '@s0rt/3d-viewer';
+import { Material, PublicViewer, THREE, Viewer } from '@s0rt/3d-viewer';
 
 import earth_map_path from '../assets/textures/map_black_outline_alpha.png';
 import index_map_path from '../assets/textures/map_indexed.png';
@@ -10,6 +10,7 @@ import { getDetectorScene } from '../scenes/getDetectorScene';
 import { getEarthScene } from '../scenes/getEarthScene';
 
 import { countryColorMap, countryName } from './data';
+import { Mesh } from 'three';
 
 export default class App extends THREE.EventDispatcher {
   private textureLoader = new THREE.TextureLoader();
@@ -20,10 +21,10 @@ export default class App extends THREE.EventDispatcher {
   private earth_map: THREE.Texture = null;
   private pbr_map: THREE.Texture = null;
 
-  public publicViewer: PublicViewer = null;
-  public viewer: Viewer = null;
+  public publicViewer: PublicViewer;
+  public viewer: Viewer;
 
-  private domElement: HTMLElement = null;
+  private domElement: HTMLElement;
   private countryNameElement: HTMLElement = null;
 
   private width = 0;
@@ -33,15 +34,15 @@ export default class App extends THREE.EventDispatcher {
   private resizeEventListener: { (): void; (this: Window, ev: UIEvent): any; };
   private updatePreprocessesEventListener: { ({ camera, renderer }: { camera: any; renderer: any; }): void; (event: THREE.Event & { type: "updatePreprocesses"; } & { target: Viewer; }): void; };
 
-  constructor(viewer: PublicViewer) {
+  constructor(publicViewer: PublicViewer) {
     super();
-    this.publicViewer = viewer;
+    this.publicViewer = publicViewer;
+
+    this.viewer = this.publicViewer.viewer;
+    this.domElement = this.viewer.element;
   }
 
   public async start() {
-    this.viewer = this.publicViewer.viewer;
-    this.domElement = this.viewer.element;
-
     let detectorScene = this.viewer.getScene("earth-detector");
     let earthScene = this.viewer.getScene("earth-main");
     let finalScene = this.viewer.getScene("earth-final");
@@ -170,5 +171,38 @@ export default class App extends THREE.EventDispatcher {
 
     detectorScene.userData.renderTarget.setSize(this.width, this.height);
     earthScene.userData.renderTarget.setSize(this.width, this.height);
+  }
+
+  public dispose() {
+    this.stop();
+
+    this.index_map.dispose();
+    this.earth_map.dispose();
+    this.pbr_map.dispose();
+
+    const finalScene = this.viewer.getScene('earth-final');
+    if (finalScene) {
+      const mesh = <Mesh><unknown>finalScene.getObjectByName('final');
+      mesh.geometry.dispose();
+      (<Material><unknown>mesh.material).dispose();
+    }
+
+    const earthScene = this.viewer.getScene('earth-main');
+    if (earthScene) {
+      earthScene.userData.renderTarget.dispose();
+      const mesh = <Mesh><unknown>earthScene.getObjectByName('earth');
+      mesh.geometry.dispose();
+      (<Material><unknown>mesh.material).dispose();
+    }
+
+    const detectorScene = this.viewer.getScene('earth-detector');
+    if (detectorScene) {
+      detectorScene.userData.renderTarget.dispose();
+      const mesh = <Mesh><unknown>detectorScene.getObjectByName('detector');
+      mesh.geometry.dispose();
+      (<Material><unknown>mesh.material).dispose();
+    }
+
+    this.publicViewer.dispose();
   }
 }

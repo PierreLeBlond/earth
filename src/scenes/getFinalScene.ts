@@ -1,8 +1,8 @@
-import { THREE, Viewer } from '@s0rt/3d-viewer';
+import { Scene, THREE, Viewer } from '@s0rt/3d-viewer';
 import fragmentShader from '../assets/shaders/final.fragment.glsl';
 import vertexShader from '../assets/shaders/final.vertex.glsl';
 
-export function getFinalScene(viewer: Viewer): THREE.Scene {
+export function getFinalScene(viewer: Viewer): Scene {
   const scene = viewer.createScene('earth-final');
   const geometry = new THREE.PlaneGeometry(2, 2);
 
