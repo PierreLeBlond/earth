@@ -103,6 +103,7 @@ export default class App extends THREE.EventDispatcher {
     this.countryNameElement.style.bottom = '15%';
     this.countryNameElement.style.textAlign = 'center';
     this.countryNameElement.style.color = '#444';
+    this.countryNameElement.style.userSelect = 'none';
   }
 
   private getTasks() {
