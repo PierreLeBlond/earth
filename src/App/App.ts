@@ -9,7 +9,7 @@ import { getIndex } from '../getIndex';
 import { getDetectorScene } from '../scenes/getDetectorScene';
 import { getEarthScene } from '../scenes/getEarthScene';
 
-import { countryColorMap, countryName } from './data';
+import { countryColorMap, countryNames } from './data';
 import { Mesh } from 'three';
 
 export default class App extends THREE.EventDispatcher {
@@ -25,7 +25,7 @@ export default class App extends THREE.EventDispatcher {
   public viewer: Viewer;
 
   private domElement: HTMLElement;
-  private countryNameElement: HTMLElement = null;
+  private countryName: string = '';
 
   private width = 0;
   private height = 0;
@@ -82,28 +82,14 @@ export default class App extends THREE.EventDispatcher {
       'mousemove', this.mousemoveEventListener, false);
     window.addEventListener('resize', this.resizeEventListener, false);
     this.viewer.addEventListener('updatePreprocesses', this.updatePreprocessesEventListener);
-    this.createCountryElement();
 
     this.resize(detectorScene, earthScene);
   }
 
   public stop() {
-    this.domElement.removeChild(this.countryNameElement);
-
     this.domElement.removeEventListener('mousemove', this.mousemoveEventListener, false);
     window.removeEventListener('resize', this.resizeEventListener, false);
     this.viewer.removeEventListener('updatePreprocesses', this.updatePreprocessesEventListener);
-  }
-
-  private createCountryElement() {
-    this.countryNameElement = document.createElement('div');
-    this.domElement.appendChild(this.countryNameElement);
-    this.countryNameElement.style.position = 'absolute';
-    this.countryNameElement.style.width = '100%';
-    this.countryNameElement.style.bottom = '15%';
-    this.countryNameElement.style.textAlign = 'center';
-    this.countryNameElement.style.color = '#444';
-    this.countryNameElement.style.userSelect = 'none';
   }
 
   private getTasks() {
@@ -133,20 +119,26 @@ export default class App extends THREE.EventDispatcher {
   private mousemove(event: MouseEvent, detectorScene: THREE.Scene, finalScene: THREE.Scene) {
     var currentTime = new Date().getTime();
     var elapsedTime = currentTime - this.savedTime;
-    if (elapsedTime > 20) {
-      var x = event.clientX - this.domElement.getBoundingClientRect().left;
-      var y = event.clientY - this.domElement.getBoundingClientRect().top;
-      var index = getIndex(this.viewer.renderer, detectorScene.userData.renderTarget, x, y);
-      (finalScene.getObjectByName('final') as any).material.uniforms.picked_index.value = index;
-      this.savedTime = currentTime;
-      this.countryNameElement.innerHTML = this.getCountryName(index);
+    if (elapsedTime < 20) {
+      return;
     }
+    var x = event.clientX - this.domElement.getBoundingClientRect().left;
+    var y = event.clientY - this.domElement.getBoundingClientRect().top;
+    var index = getIndex(this.viewer.renderer, detectorScene.userData.renderTarget, x, y);
+    (finalScene.getObjectByName('final') as any).material.uniforms.picked_index.value = index;
+    this.savedTime = currentTime;
+    const newCountryName = this.getCountryName(index);
+    if (newCountryName == this.countryName) {
+      return;
+    }
+    this.countryName = newCountryName;
+    this.dispatchEvent({ type: 'country', message: this.countryName })
   }
 
   private getCountryName(index: number) {
     for (var i in countryColorMap) {
       if (countryColorMap.hasOwnProperty(i)) {
-        if (index == countryColorMap[i]) return countryName[i];
+        if (index == countryColorMap[i]) return countryNames[i];
       }
     }
     return '';
