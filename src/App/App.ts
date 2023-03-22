@@ -47,6 +47,11 @@ export default class App extends THREE.EventDispatcher {
     let earthScene = this.viewer.getScene("earth-main");
     let finalScene = this.viewer.getScene("earth-final");
 
+    this.viewer.camera.position.set(2, 0, 0);
+    this.viewer.fov = 50;
+    this.viewer.camera.fov = 50;
+    configureControls(this.viewer);
+
     if (!earthScene) {
       detectorScene = getDetectorScene(this.viewer, this.domElement.offsetWidth, this.domElement.offsetHeight)
 
@@ -69,8 +74,6 @@ export default class App extends THREE.EventDispatcher {
     }
 
     this.viewer.setScene(finalScene);
-    this.viewer.camera.position.set(2, 0, 0);
-    configureControls(this.viewer);
 
     this.updatePreprocessesEventListener = ({ camera, renderer }) => {
       this.render(camera, renderer, detectorScene, earthScene, finalScene);
