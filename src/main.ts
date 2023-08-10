@@ -7,5 +7,10 @@ const app = new App(viewer);
 
 var scripts = document.getElementsByTagName("script");
 var script = Array.from(scripts).find(script => script.hasAttribute("app-callback"));
-(window as any)[script.getAttribute("app-callback")](app);
+
+if (!script) {
+  throw new Error('Couldn\'t find script with attribute `app-callback`');
+}
+
+(window as any)[script.getAttribute("app-callback") as string](app);
 

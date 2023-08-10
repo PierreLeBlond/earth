@@ -7,5 +7,9 @@ export function getIndex(renderer: THREE.WebGLRenderer, renderTarget: THREE.WebG
 
   var index = buffer[0];
 
-  return index > 0 ? index : -1;
+  if (!index) {
+    return -1;
+  }
+
+  return index;
 }

@@ -1,18 +1,55 @@
 {
+  "include": [
+    "src/**/*",
+    "typings/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ],
   "compilerOptions": {
-    "allowSyntheticDefaultImports": true,
+    "target": "esnext",
     "outDir": "./dist/",
-    "noImplicitAny": true,
-    "module": "es6",
-    "moduleResolution": "node",
-    "sourceMap": true,
-    "target": "es6",
     "typeRoots": [
       "node_modules/@types"
     ],
     "lib": [
-      "es2017",
+      "esnext",
       "dom"
-    ]
+    ],
+    "declaration": true,
+    // Type checking
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "alwaysStrict": true,
+    "exactOptionalPropertyTypes": true,
+    // "noFallthroughCasesInSwitch": true, // We don't use switch statement anyway
+    "noImplicitAny": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    // Let's be strict, covers and enables several strictness options
+    "strict": true,
+    // Module
+    "allowUmdGlobalAccess": false,
+    // "baseUrl": "",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "noResolve": false,
+    "resolveJsonModule": true,
+    "newLine": "lf",
+    "preserveConstEnums": true,
+    "sourceMap": true,
+    "allowJs": false,
+    "checkJs": false,
+    "allowSyntheticDefaultImports": false,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "skipLibCheck": true
   }
 }

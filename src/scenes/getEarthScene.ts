@@ -15,7 +15,7 @@ export function getEarthScene(viewer: Viewer, width: number, height: number): Sc
     magFilter: THREE.NearestFilter,
     format: THREE.RGBAFormat
   });
-  scene.userData.renderTarget = renderTarget;
+  scene.userData['renderTarget'] = renderTarget;
 
   return scene;
 }
