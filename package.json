@@ -1,6 +1,6 @@
 {
   "name": "earth",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Earth rendering",
   "main": "main.js",
   "scripts": {
