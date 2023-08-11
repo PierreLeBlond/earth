@@ -9,7 +9,7 @@
   ],
   "compilerOptions": {
     "target": "esnext",
-    "outDir": "./dist/",
+    "outDir": "./dist/lib",
     "typeRoots": [
       "node_modules/@types"
     ],

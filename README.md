@@ -14,3 +14,9 @@ before including the lib:
   const Earth = (await import('/PATHTOLIB/index.js')).default;
 ```
 
+# Deploy
+
+`npm version patch|minor|major -m "chore: vX.X.X"`
+
+
+
