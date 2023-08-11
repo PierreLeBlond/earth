@@ -42,6 +42,13 @@ const library = {
     chunkFilename: `chunks/${config.chunkFilename}`,
     clean: true
   },
+  plugins: [
+    new CopyPlugin({
+      patterns: [
+        "package.json"
+      ],
+    }),
+  ],
   experiments: {
     outputModule: true
   },
