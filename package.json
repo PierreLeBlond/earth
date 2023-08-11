@@ -2,7 +2,7 @@
   "name": "earth",
   "version": "2.0.3",
   "description": "Earth rendering",
-  "main": "src/main.ts",
+  "main": "src/index.ts",
   "type": "module",
   "scripts": {
     "build": "NODE_ENV=production webpack --config ./webpack/config.js",
