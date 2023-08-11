@@ -10,7 +10,6 @@ import { getDetectorScene } from '../scenes/getDetectorScene';
 import { getEarthScene } from '../scenes/getEarthScene';
 
 import { countryColorMap, countryNames } from './data';
-import { Mesh } from 'three';
 
 export default class App extends THREE.EventDispatcher {
   private textureLoader = new THREE.TextureLoader();
@@ -188,7 +187,7 @@ export default class App extends THREE.EventDispatcher {
 
     const finalScene = this.viewer.getScene('earth-final');
     if (finalScene) {
-      const mesh = <Mesh><unknown>finalScene.getObjectByName('final');
+      const mesh = <THREE.Mesh><unknown>finalScene.getObjectByName('final');
       mesh.geometry.dispose();
       (<Material><unknown>mesh.material).dispose();
     }
@@ -196,7 +195,7 @@ export default class App extends THREE.EventDispatcher {
     const earthScene = this.viewer.getScene('earth-main');
     if (earthScene) {
       earthScene.userData['renderTarget'].dispose();
-      const mesh = <Mesh><unknown>earthScene.getObjectByName('earth');
+      const mesh = <THREE.Mesh><unknown>earthScene.getObjectByName('earth');
       mesh.geometry.dispose();
       (<Material><unknown>mesh.material).dispose();
     }
@@ -204,7 +203,7 @@ export default class App extends THREE.EventDispatcher {
     const detectorScene = this.viewer.getScene('earth-detector');
     if (detectorScene) {
       detectorScene.userData['renderTarget'].dispose();
-      const mesh = <Mesh><unknown>detectorScene.getObjectByName('detector');
+      const mesh = <THREE.Mesh><unknown>detectorScene.getObjectByName('detector');
       mesh.geometry.dispose();
       (<Material><unknown>mesh.material).dispose();
     }
