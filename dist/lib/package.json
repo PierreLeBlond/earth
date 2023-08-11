@@ -1,6 +1,6 @@
 {
   "name": "earth",
-  "version": "2.0.4",
+  "version": "2.0.6",
   "description": "Earth rendering",
   "main": "dist/lib/index.js",
   "types": "dist/lib/index.d.ts",
