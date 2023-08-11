@@ -2,11 +2,12 @@
   "name": "earth",
   "version": "2.0.3",
   "description": "Earth rendering",
-  "main": "src/index.ts",
+  "main": "dist/lib/index.js",
+  "types": "dist/lib/index.d.ts",
   "type": "module",
   "scripts": {
-    "build": "NODE_ENV=production webpack --config ./webpack/config.js",
-    "dev": "NODE_ENV=development webpack serve --config ./webpack/config.js",
+    "build": "NODE_ENV=production webpack --config ./webpack/config.cjs",
+    "dev": "NODE_ENV=development webpack serve --config ./webpack/config.cjs",
     "check": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
