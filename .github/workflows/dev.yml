@@ -1,4 +1,4 @@
-name: Deploy to development
+name: Deploy to planethoster dev directory
 on:
   push:
     branches:
@@ -20,4 +20,3 @@ jobs:
           port: ${{ secrets.PORT }}
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
-    
