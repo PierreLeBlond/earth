@@ -11,11 +11,11 @@ jobs:
       - uses: actions/checkout@v3
       - run: npm install
       - run: npm run build
-      - uses: garygrossgarten/github-action-scp@release
+      - uses: appleboy/scp-action@v0.1.7
         with:
-          local: dist
-          remote: app/earth/dev
-          rmRemote: true
+          source: dist
+          target: app/earth/dev
+          rm: true
           host: ${{ secrets.HOST }}
           port: ${{ secrets.PORT }}
           username: ${{ secrets.USERNAME }}

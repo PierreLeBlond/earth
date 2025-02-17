@@ -14,11 +14,11 @@ jobs:
           cd dist/lib
           mkdir ../package
           npm pack --pack-destination ../package
-      - uses: garygrossgarten/github-action-scp@release
+      - uses: appleboy/scp-action@v0.1.7
         with:
-          local: dist
-          remote: app/earth/${{ github.ref_name }}
-          rmRemote: true
+          source: dist
+          target: app/earth/${{ github.ref_name }}
+          rm: true
           host: ${{ secrets.HOST }}
           port: ${{ secrets.PORT }}
           username: ${{ secrets.USERNAME }}
