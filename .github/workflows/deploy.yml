@@ -16,7 +16,8 @@ jobs:
           npm pack --pack-destination ../package
       - uses: appleboy/scp-action@v0.1.7
         with:
-          source: "dist/*"
+          source: dist/*
+          strip_components: 1
           target: app/earth/${{ github.ref_name }}
           rm: true
           host: ${{ secrets.HOST }}
