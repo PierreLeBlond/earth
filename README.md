@@ -16,5 +16,8 @@ const Earth = (await import("/PATHTOLIB/index.js")).default;
 
 # Deploy
 
-`npm version patch|minor|major -m "chore: vX.X.X"`
+Change version in package.json
+
+`git commit -a -m "chore: vX.X.X"`
+`git tag -a vX.X.X -m "vX.X.X"`
 `git push --follow-tags`
