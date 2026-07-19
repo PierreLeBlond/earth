@@ -15,13 +15,14 @@ jobs:
           cd build/lib
           mkdir ../package
           npm pack --pack-destination ../package
-      - uses: appleboy/scp-action@v0.1.7
+
+      - name: Sync files
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          source: dist/*
-          strip_components: 1
-          target: app/earth/${{ github.ref_name }}
-          rm: true
-          host: ${{ secrets.HOST }}
+          local-dir: ./build/
+          server-dir: ./app/earth/${{ github.ref_name }}/
+          server: ${{ secrets.HOST }}
           port: ${{ secrets.PORT }}
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
+          dry-run: ${{ env.ACT }}
