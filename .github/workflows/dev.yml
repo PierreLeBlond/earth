@@ -9,15 +9,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: npm install
-      - run: npm run build
-      - uses: appleboy/scp-action@v0.1.7
+      - uses: oven-sh/setup-bun@v2
+      - run: bun i
+      - run: bun run build
+
+      - name: Sync files
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          source: dist/*
-          strip_components: 1
-          target: app/earth/dev
-          rm: true
-          host: ${{ secrets.HOST }}
+          local-dir: ./build/
+          server-dir: ./app/earth/dev/
+          server: ${{ secrets.HOST }}
           port: ${{ secrets.PORT }}
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
+          dry-run: ${{ env.ACT }}

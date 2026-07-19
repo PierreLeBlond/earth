@@ -1,7 +1,6 @@
-import { Viewer } from '@s0rt/3d-viewer';
+import { OrbitControls } from "@3dvf/create-viewer/create-camera/orbit-controls";
 
-export default function configureControls(viewer: Viewer) {
-  const { controls } = viewer;
+export default function configureControls(controls: OrbitControls) {
   controls.enablePan = false;
   controls.rotateSpeed = 0.2;
   controls.minDistance = 2.5;

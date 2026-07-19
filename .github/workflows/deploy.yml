@@ -8,10 +8,11 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
-      - run: npm install
-      - run: npm run build -- --output-public-path https://app.pierrelespingal.xyz/earth/${{ github.ref_name }}/
+      - uses: oven-sh/setup-bun@v2
+      - run: bun i
+      - run: bun run build -- --output-public-path https://app.pierrelespingal.xyz/earth/${{ github.ref_name }}/
       - run: |
-          cd dist/lib
+          cd build/lib
           mkdir ../package
           npm pack --pack-destination ../package
       - uses: appleboy/scp-action@v0.1.7

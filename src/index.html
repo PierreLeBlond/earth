@@ -21,23 +21,18 @@
   </main>
   <button onclick="launch()">Launch</button>
   <button onclick="dispose()">Dispose</button>
-  <script defer>
+  <script defer app-callback="start">
     let globalApp;
     async function start(app) {
       globalApp = app;
     }
     async function launch() {
-      globalApp.publicViewer.addTasks({
-        parallelTasks: [
-          {
-            task: async () => {
-              await globalApp.publicViewer.loadIbl('./assets/room_rgbd_irradiance.dds', './assets/room_rgbd_radiance.dds');
-              globalApp.publicViewer.setIblInViewSpace();
+      globalApp.viewer.addTasks([
+          async () => {
+              await globalApp.loadIbl('./assets/room_irradiance_uastc.ktx2', './assets/room_radiance_uastc.ktx2');
             }
-          }
-        ]
-      });
-      await globalApp.publicViewer.launch();
+        ]);
+      await globalApp.viewer.launch();
       await globalApp.start();
     }
     function dispose() {
@@ -46,7 +41,7 @@
     }
 
   </script>
-  <script defer type="module" src="./main.js" app-callback="start"></script>
+  <script defer type="module" src="./main.ts"></script>
 </body>
 
 </html>

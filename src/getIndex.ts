@@ -1,8 +1,8 @@
-import { THREE } from "@s0rt/3d-viewer";
+import { WebGLRenderer, WebGLRenderTarget } from "three";
 
 export function getIndex(
-  renderer: THREE.WebGLRenderer,
-  renderTarget: THREE.WebGLRenderTarget,
+  renderer: WebGLRenderer,
+  renderTarget: WebGLRenderTarget,
   x: number,
   y: number
 ) {

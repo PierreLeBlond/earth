@@ -1,10 +1,20 @@
-import { Scene, THREE, Viewer } from '@s0rt/3d-viewer';
+import { Mesh, PlaneGeometry, Scene, ShaderMaterial } from 'three';
 import fragmentShader from '../assets/shaders/final.fragment.glsl';
 import vertexShader from '../assets/shaders/final.vertex.glsl';
+import { createScene } from '@3dvf/create-scene/create-scene';
 
-export function getFinalScene(viewer: Viewer): Scene {
-  const scene = viewer.createScene('earth-final');
-  const geometry = new THREE.PlaneGeometry(2, 2);
+const sceneName = "final-scene";
+
+export function getFinalScene(defaultScene: Scene): Scene {
+  let scene = defaultScene.userData[sceneName];
+
+  if (scene) {
+    return scene;
+  }
+
+  scene = createScene(sceneName);
+
+  const geometry = new PlaneGeometry(2, 2);
 
   const uniforms: { [name: string]: any } = {
     map: { type: 't', value: null },
@@ -12,14 +22,15 @@ export function getFinalScene(viewer: Viewer): Scene {
     picked_index: { type: 'i', value: 666 },
   };
 
-  const material = new THREE.ShaderMaterial(
+  const material = new ShaderMaterial(
     { uniforms, vertexShader, fragmentShader });
 
-  const mesh = new THREE.Mesh(geometry, material);
+  const mesh = new Mesh(geometry, material);
   mesh.name = 'final';
 
   scene.add(mesh);
 
+  defaultScene.userData[sceneName] = scene;
   return scene;
 }
 

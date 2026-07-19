@@ -1,9 +1,14 @@
 import App from "./App/App";
 
-import { PublicViewer } from "@s0rt/3d-viewer";
+import { createViewer } from "@3dvf/create-viewer/create-viewer";
 
-const viewer = new PublicViewer('earth-viewer');
-const app = new App(viewer);
+const element = document.getElementById("earth-viewer");
+if (!element) {
+  throw new Error('Couldn\'t find viewer element');
+}
+
+const viewer = createViewer(element);
+const app = new App(viewer, element);
 
 var scripts = document.getElementsByTagName("script");
 var script = Array.from(scripts).find(script => script.hasAttribute("app-callback"));

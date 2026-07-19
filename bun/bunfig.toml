@@ -1,0 +1,2 @@
+[serve.static]
+plugins = ["./glsl-loader-plugin.ts"]

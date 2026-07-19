@@ -1,4 +1,5 @@
-import { Material, PublicViewer, Scene, THREE, Viewer } from "@s0rt/3d-viewer";
+import { EventDispatcher, NearestFilter, TextureLoader, Texture, Scene, WebGLRenderer, Color } from "three";
+import OffsetCamera from '@3dvf/create-viewer/create-camera/offset-camera';
 
 import earth_map_path from "../assets/textures/map_black_outline_alpha.png";
 import index_map_path from "../assets/textures/map_indexed.png";
@@ -10,22 +11,26 @@ import { getDetectorScene } from "../scenes/getDetectorScene";
 import { getEarthScene } from "../scenes/getEarthScene";
 
 import { countryColorMap, countryNames } from "./data";
+import { CreateViewerReturnType } from "@3dvf/create-viewer/create-viewer";
+import { addToDisposeTracker } from "@3dvf/dispose-tracker/add-to-dispose-tracker";
+import { loadIBL } from "@3dvf/load-ibl/load-ibl";
 
 export type AppEvent = {
   country: { message: string };
 };
 
 export default class App {
-  private textureLoader = new THREE.TextureLoader();
+  private textureLoader = new TextureLoader();
 
   private savedTime = new Date().getTime();
 
-  private index_map: THREE.Texture | null = null;
-  private earth_map: THREE.Texture | null = null;
-  private pbr_map: THREE.Texture | null = null;
+  private earthScene: Scene;
+  private detectorScene: Scene;
+  private finalScene: Scene;
 
-  public publicViewer: PublicViewer;
-  public viewer: Viewer;
+  private index_map: Texture | null = null;
+  private earth_map: Texture | null = null;
+  private pbr_map: Texture | null = null;
 
   private domElement: HTMLElement;
   private countryName: string = "";
@@ -37,45 +42,55 @@ export default class App {
     (event: MouseEvent): void;
     (this: HTMLElement, ev: MouseEvent): any;
     (this: HTMLElement, ev: MouseEvent): any;
-  } = () => {};
+  } = () => { };
   private resizeEventListener: { (): void; (this: Window, ev: UIEvent): any } =
-    () => {};
+    () => { };
   private updatePreprocessesEventListener: {
     ({
       camera,
       renderer,
     }: {
-      camera: THREE.PerspectiveCamera;
-      renderer: THREE.WebGLRenderer;
+      camera: OffsetCamera;
+      renderer: WebGLRenderer;
     }): void;
-  } = () => {};
+  } = () => { };
 
-  private eventDispatcher = new THREE.EventDispatcher<AppEvent>();
+  private eventDispatcher = new EventDispatcher<AppEvent>();
 
-  constructor(publicViewer: PublicViewer) {
-    this.publicViewer = publicViewer;
+  public viewer: CreateViewerReturnType;
 
-    this.viewer = this.publicViewer.viewer;
-    this.domElement = this.viewer.element;
+  constructor(viewer: CreateViewerReturnType, element: HTMLElement) {
+    this.viewer = viewer;
+    this.domElement = element;
+
+    this.detectorScene = getDetectorScene(
+      this.viewer.scene,
+      this.domElement.offsetWidth,
+      this.domElement.offsetHeight
+    );
+
+    this.earthScene = getEarthScene(
+      this.viewer.scene,
+      this.domElement.offsetWidth,
+      this.domElement.offsetHeight
+    );
+
+    this.finalScene = getFinalScene(this.viewer.scene);
   }
 
-  private addEventListeners = (
-    detectorScene: Scene,
-    earthScene: Scene,
-    finalScene: Scene
-  ) => {
+  private addEventListeners = () => {
     this.updatePreprocessesEventListener = ({
       camera,
       renderer,
     }: {
-      camera: THREE.PerspectiveCamera;
-      renderer: THREE.WebGLRenderer;
+      camera: OffsetCamera;
+      renderer: WebGLRenderer;
     }) => {
-      this.render(camera, renderer, detectorScene, earthScene, finalScene);
+      this.render(camera, renderer, this.detectorScene, this.earthScene, this.finalScene);
     };
     this.mousemoveEventListener = (event: MouseEvent) =>
-      this.mousemove(event, detectorScene, finalScene);
-    this.resizeEventListener = () => this.resize(detectorScene, earthScene);
+      this.mousemove(event, this.detectorScene, this.finalScene);
+    this.resizeEventListener = () => this.resize();
 
     this.domElement.addEventListener(
       "mousemove",
@@ -83,62 +98,47 @@ export default class App {
       false
     );
     window.addEventListener("resize", this.resizeEventListener, false);
-    this.viewer
-      .getEventDispatcher()
+    this.viewer.eventDispatcher
       .addEventListener(
         "updatePreprocesses",
         this.updatePreprocessesEventListener
       );
   };
 
+  public async loadIbl(irradiancePath: string, radiancePath: string) {
+    return loadIBL(this.viewer.renderer, this.earthScene, irradiancePath, radiancePath, '/assets/basis/')
+  }
+
   public async start() {
-    let detectorScene = this.viewer.getScene("earth-detector");
-    let earthScene = this.viewer.getScene("earth-main");
-    let finalScene = this.viewer.getScene("earth-final");
+    this.viewer.disableScene();
 
     this.viewer.camera.position.set(2, 0, 0);
-    this.viewer.fov = 50;
+    this.viewer.camera.absoluteFov = 50;
     this.viewer.camera.fov = 50;
-    configureControls(this.viewer);
+    configureControls(this.viewer.controls);
 
-    if (!detectorScene || !earthScene || !finalScene) {
-      detectorScene = getDetectorScene(
-        this.viewer,
-        this.domElement.offsetWidth,
-        this.domElement.offsetHeight
-      );
 
-      earthScene = getEarthScene(
-        this.viewer,
-        this.domElement.offsetWidth,
-        this.domElement.offsetHeight
-      );
+    this.viewer.addTasks(this.getTasks());
+    await this.viewer.launchTasks();
 
-      finalScene = getFinalScene(this.viewer);
+    (
+      this.detectorScene.getObjectByName("detector") as any
+    ).material.uniforms.map.value = this.index_map;
 
-      this.publicViewer.addTasks(this.getTasks());
-      await this.publicViewer.launchTasks();
+    const earth = this.earthScene.getObjectByName("earth") as any;
+    earth.material.color = new Color(1, 1, 1);
+    earth.material.map = this.earth_map;
+    earth.material.roughnessMap = this.pbr_map;
+    earth.material.metalnessMap = this.pbr_map;
 
-      (
-        detectorScene.getObjectByName("detector") as any
-      ).material.uniforms.map.value = this.index_map;
+    (
+      this.finalScene.getObjectByName("final") as any
+    ).material.uniforms.index_map.value =
+      this.detectorScene.userData["renderTarget"].texture;
 
-      const earth = earthScene.getObjectByName("earth") as any;
-      earth.material.map = this.earth_map;
-      earth.material.roughnessMap = this.pbr_map;
-      earth.material.metalnessMap = this.pbr_map;
+    this.addEventListeners();
 
-      (
-        finalScene.getObjectByName("final") as any
-      ).material.uniforms.index_map.value =
-        detectorScene.userData["renderTarget"].texture;
-    }
-
-    this.viewer.setScene(finalScene);
-
-    this.addEventListeners(detectorScene, earthScene, finalScene);
-
-    this.resize(detectorScene, earthScene);
+    this.resize();
   }
 
   public stop() {
@@ -148,8 +148,7 @@ export default class App {
       false
     );
     window.removeEventListener("resize", this.resizeEventListener, false);
-    this.viewer
-      .getEventDispatcher()
+    this.viewer.eventDispatcher
       .removeEventListener(
         "updatePreprocesses",
         this.updatePreprocessesEventListener
@@ -157,33 +156,28 @@ export default class App {
   }
 
   private getTasks() {
-    return {
-      parallelTasks: [
-        {
-          task: async () => {
-            this.index_map = await this.textureLoader.loadAsync(index_map_path);
-            this.index_map.magFilter = THREE.NearestFilter;
-            this.index_map.minFilter = THREE.NearestFilter;
-          },
-        },
-        {
-          task: async () => {
-            this.earth_map = await this.textureLoader.loadAsync(earth_map_path);
-          },
-        },
-        {
-          task: async () => {
-            this.pbr_map = await this.textureLoader.loadAsync(pbr_map_path);
-          },
-        },
-      ],
-    };
+    return [
+      async () => {
+        this.index_map = await this.textureLoader.loadAsync(index_map_path);
+        this.index_map.magFilter = NearestFilter;
+        this.index_map.minFilter = NearestFilter;
+        addToDisposeTracker(this.viewer.scene, this.index_map);
+      },
+      async () => {
+        this.earth_map = await this.textureLoader.loadAsync(earth_map_path);
+        addToDisposeTracker(this.viewer.scene, this.earth_map);
+      },
+      async () => {
+        this.pbr_map = await this.textureLoader.loadAsync(pbr_map_path);
+        addToDisposeTracker(this.viewer.scene, this.pbr_map);
+      },
+    ];
   }
 
   private mousemove(
     event: MouseEvent,
-    detectorScene: THREE.Scene,
-    finalScene: THREE.Scene
+    detectorScene: Scene,
+    finalScene: Scene
   ) {
     var currentTime = new Date().getTime();
     var elapsedTime = currentTime - this.savedTime;
@@ -223,11 +217,11 @@ export default class App {
   }
 
   private render(
-    camera: THREE.PerspectiveCamera,
-    renderer: THREE.WebGLRenderer,
-    detectorScene: THREE.Scene,
-    earthScene: THREE.Scene,
-    finalScene: THREE.Scene
+    camera: OffsetCamera,
+    renderer: WebGLRenderer,
+    detectorScene: Scene,
+    earthScene: Scene,
+    finalScene: Scene
   ) {
     renderer.setRenderTarget(detectorScene.userData["renderTarget"]);
     renderer.render(detectorScene, camera);
@@ -239,55 +233,21 @@ export default class App {
       earthScene.userData["renderTarget"].texture;
 
     renderer.setRenderTarget(null);
+
+    renderer.render(finalScene, camera)
   }
 
-  private resize(detectorScene: THREE.Scene, earthScene: THREE.Scene) {
+  private resize() {
     this.width = this.domElement.offsetWidth;
     this.height = this.domElement.offsetHeight;
 
-    detectorScene.userData["renderTarget"].setSize(this.width, this.height);
-    earthScene.userData["renderTarget"].setSize(this.width, this.height);
+    this.detectorScene.userData["renderTarget"].setSize(this.width, this.height);
+    this.earthScene.userData["renderTarget"].setSize(this.width, this.height);
   }
 
   public dispose() {
     this.stop();
-
-    if (this.index_map) {
-      this.index_map.dispose();
-    }
-    if (this.earth_map) {
-      this.earth_map.dispose();
-    }
-    if (this.pbr_map) {
-      this.pbr_map.dispose();
-    }
-
-    const finalScene = this.viewer.getScene("earth-final");
-    if (finalScene) {
-      const mesh = <THREE.Mesh>(<unknown>finalScene.getObjectByName("final"));
-      mesh.geometry.dispose();
-      (<Material>(<unknown>mesh.material)).dispose();
-    }
-
-    const earthScene = this.viewer.getScene("earth-main");
-    if (earthScene) {
-      earthScene.userData["renderTarget"].dispose();
-      const mesh = <THREE.Mesh>(<unknown>earthScene.getObjectByName("earth"));
-      mesh.geometry.dispose();
-      (<Material>(<unknown>mesh.material)).dispose();
-    }
-
-    const detectorScene = this.viewer.getScene("earth-detector");
-    if (detectorScene) {
-      detectorScene.userData["renderTarget"].dispose();
-      const mesh = <THREE.Mesh>(
-        (<unknown>detectorScene.getObjectByName("detector"))
-      );
-      mesh.geometry.dispose();
-      (<Material>(<unknown>mesh.material)).dispose();
-    }
-
-    this.publicViewer.dispose();
+    this.viewer.enableScene();
   }
 
   public getEventDispatcher() {

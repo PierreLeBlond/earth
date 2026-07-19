@@ -1,0 +1,27 @@
+import {
+  Color,
+  LinearSRGBColorSpace,
+  NoToneMapping,
+  WebGLRenderer,
+} from "three";
+
+export default function createRenderer(element: HTMLElement): WebGLRenderer {
+  const renderer = new WebGLRenderer({
+    antialias: true,
+    alpha: true,
+    preserveDrawingBuffer: true,
+    stencil: true
+  });
+
+  renderer.setSize(element.clientWidth, element.clientHeight);
+  renderer.setClearColor(new Color(0, 0, 0), 0);
+
+  renderer.outputColorSpace = LinearSRGBColorSpace;
+  renderer.toneMapping = NoToneMapping;
+
+  renderer.clearColor();
+
+  element.appendChild(renderer.domElement);
+
+  return renderer;
+}
