@@ -1,8 +1,8 @@
-import {THREE} from '@s0rt/3d-viewer';
+import { PMREMGenerator, Texture, WebGLRenderer } from "three";
 
 export default function getPMREMEnvMap(
-    renderer: THREE.WebGLRenderer, hdr: THREE.Texture) {
-  const pmremGenerator = new THREE.PMREMGenerator(renderer);
+  renderer: WebGLRenderer, hdr: Texture) {
+  const pmremGenerator = new PMREMGenerator(renderer);
   pmremGenerator.compileEquirectangularShader();
   const envMap = pmremGenerator.fromEquirectangular(hdr).texture;
   pmremGenerator.dispose();

@@ -1,8 +1,8 @@
-import { THREE } from '@s0rt/3d-viewer';
+import { TextureLoader, WebGLRenderer } from "three";
 
 export default async function loadTexture(
-  _: THREE.WebGLRenderer, path: string) {
-  const loader = new THREE.TextureLoader();
+  _: WebGLRenderer, path: string) {
+  const loader = new TextureLoader();
   const envMap = await loader.loadAsync(path);
   return envMap;
 };
