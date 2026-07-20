@@ -23,7 +23,8 @@ jobs:
           local-dir: ./build/
           server-dir: ./app/earth/${{ github.ref_name }}/
           server: ${{ secrets.HOST }}
-          port: ${{ secrets.PORT }}
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
           dry-run: ${{ env.ACT }}
+          timeout: 180000
+          protocol: ftp
