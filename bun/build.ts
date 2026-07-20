@@ -1,23 +1,25 @@
-import { mkdir } from "node:fs/promises";
+import { mkdir, cp, copyFile } from "node:fs/promises";
 import glslLoader from "./glsl-loader-plugin";
 
-const libDirectory = './build/lib';
-
-const copy = async (filePath: string, outputPath: string) => {
-  const fileName = filePath.substring(filePath.lastIndexOf("/"))
-  const file = Bun.file(filePath);
-  await Bun.write(outputPath + fileName, file);
+const copyDirectory = async (directoryPath: string, outputPath: string) => {
+  await cp(directoryPath, outputPath, { recursive: true });
 }
 
-await Bun.build({
-  entrypoints: ['./src/index.ts'],
-  outdir: libDirectory,
-  plugins: [glslLoader]
-});
+const copy = async (filePath: string, outputPath: string) => {
+  await copyFile(filePath, outputPath);
+}
 
-await mkdir(`${libDirectory}/assets`, { recursive: true });
+export const build = async (entrypoints: string[], outdir: string) => {
 
-await copy("./public/assets/room_rgbd_radiance.dds", `${libDirectory}/assets`);
-await copy("./public/assets/room_rgbd_irradiance.dds", `${libDirectory}/assets`);
-await copy("./package.json", `${libDirectory}`);
+  await Bun.build({
+    entrypoints: entrypoints,
+    outdir,
+    plugins: [glslLoader],
+    publicPath: process.env.PUBLIC_PATH ?? "/",
+    env: "PUBLIC_*"
+  });
 
+  await mkdir(`${outdir}/assets`, { recursive: true });
+  await copyDirectory("./public/assets/", `${outdir}/assets`);
+  await copy("package.json", `${outdir}/package.json`);
+}

@@ -106,7 +106,7 @@ export default class App {
   };
 
   public async loadIbl(irradiancePath: string, radiancePath: string) {
-    return loadIBL(this.viewer.renderer, this.earthScene, irradiancePath, radiancePath, '/assets/basis/')
+    return loadIBL(this.viewer.renderer, this.earthScene, `${process.env.PUBLIC_PATH}${irradiancePath}`, `${process.env.PUBLIC_PATH}${radiancePath}`, `${process.env.PUBLIC_PATH}assets/basis/`);
   }
 
   public async start() {
