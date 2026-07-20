@@ -1,6 +1,6 @@
 {
   "name": "earth",
-  "version": "4.2.0",
+  "version": "5.0.0",
   "description": "Earth rendering with country picking",
   "main": "index.js",
   "types": "index.d.ts",
