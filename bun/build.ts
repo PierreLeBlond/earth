@@ -11,15 +11,17 @@ const copy = async (filePath: string, outputPath: string) => {
 
 export const build = async (entrypoints: string[], outdir: string) => {
 
-  await Bun.build({
+  const buildOutputs = await Bun.build({
     entrypoints: entrypoints,
     outdir,
     plugins: [glslLoader],
-    publicPath: process.env.PUBLIC_PATH ?? "/",
+    publicPath: process.env.PUBLIC_PATH ?? "./",
     env: "PUBLIC_*"
   });
 
   await mkdir(`${outdir}/assets`, { recursive: true });
   await copyDirectory("./public/assets/", `${outdir}/assets`);
   await copy("package.json", `${outdir}/package.json`);
+
+  return buildOutputs;
 }

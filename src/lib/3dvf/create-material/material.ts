@@ -146,21 +146,21 @@ export class Material extends ShaderMaterial {
   public get ibl(): Ibl | null {
     return this.internalIbl;
   }
-  public set ibl(ibl: Ibl | null) {
+  private set ibl(ibl: Ibl | null) {
     this.internalIbl = ibl;
     this.uniforms["radiance_map"].value = ibl?.radiance ?? null;
     this.uniforms["irradiance_map"].value = ibl?.irradiance ?? null;
     this.uniforms["ibl_matrix"].value = ibl?.matrix ?? new Matrix4();
   }
 
-  public iblSpace: IblSpace = "world";
+  private iblSpace: IblSpace = "world";
   public toneMapper: ToneMapper = "khronos_pbr_neutral";
 
   private internalBrdf: Texture | null = null;
   public get brdf(): Texture | null {
     return this.internalBrdf;
   }
-  public set brdf(brdf: Texture | null) {
+  private set brdf(brdf: Texture | null) {
     this.internalBrdf = brdf;
     this.uniforms["brdf_map"].value = brdf;
   }
@@ -278,15 +278,17 @@ export class Material extends ShaderMaterial {
     this.setDefine("USE_SSAO", !!this.ssaoMap);
   }
 
-  public override onBeforeRender(renderer: WebGLRenderer, scene: Scene, camera: Camera, geometry: BufferGeometry, object: Object3D, group: Group): void {
-    const sceneIBL = scene.userData["ibl"];
-    if (this.ibl == scene.userData["ibl"]) {
-      return;
+  private setUserData(scene: Scene, key: "ibl" | "brdf" | "iblSpace") {
+    if (this[key] != scene.userData[key]) {
+      this[key] = scene.userData[key];
+      this.needsUpdate = true;
     }
-    console.log(sceneIBL);
-    this.ibl = sceneIBL;
-    this.brdf = scene.userData["brdf"];
-    this.needsUpdate = true;
+  }
+
+  public override onBeforeRender(renderer: WebGLRenderer, scene: Scene, camera: Camera, geometry: BufferGeometry, object: Object3D, group: Group): void {
+    this.setUserData(scene, "ibl");
+    this.setUserData(scene, "brdf");
+    this.setUserData(scene, "iblSpace");
   }
 
   public override customProgramCacheKey(): string {

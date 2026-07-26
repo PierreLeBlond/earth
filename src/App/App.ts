@@ -24,9 +24,9 @@ export default class App {
 
   private savedTime = new Date().getTime();
 
-  private earthScene: Scene;
-  private detectorScene: Scene;
-  private finalScene: Scene;
+  public earthScene: Scene;
+  public detectorScene: Scene;
+  public finalScene: Scene;
 
   private index_map: Texture | null = null;
   private earth_map: Texture | null = null;
@@ -153,6 +153,7 @@ export default class App {
         "updatePreprocesses",
         this.updatePreprocessesEventListener
       );
+    this.viewer.enableScene();
   }
 
   private getTasks() {

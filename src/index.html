@@ -30,6 +30,7 @@
       globalApp.viewer.addTasks([
           async () => {
               await globalApp.loadIbl('./assets/room_irradiance_uastc.ktx2', './assets/room_radiance_uastc.ktx2');
+              globalApp.earthScene.userData["iblSpace"] = "view";
             }
         ]);
       await globalApp.viewer.launch();

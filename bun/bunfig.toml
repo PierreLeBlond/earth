@@ -1,2 +1,3 @@
 [serve.static]
 plugins = ["./glsl-loader-plugin.ts"]
+env = "PUBLIC_*" 
