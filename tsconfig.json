@@ -36,7 +36,6 @@
 		"module": "ES2022" /* Specify what module code is generated. */,
 		"rootDir": "./src/",                                     /* Specify the root folder within your source files. */
 		"moduleResolution": "bundler"                        /* Specify how TypeScript looks up a file from a given module specifier. */,
-		"baseUrl": "./",                                     /* Specify the base directory to resolve non-relative module names. */
 		"paths": {
       "@3dvf/*": ["./src/lib/3dvf/*"]
     } /* Specify a set of entries that re-map imports to additional lookup locations. */,
@@ -44,7 +43,7 @@
 		"typeRoots": [
 			"node_modules/@types"
 		] /* Specify multiple folders that act like './node_modules/@types'. */,
-		// "types": [] /* Specify type package names to be included without being referenced in a source file. */,
+		"types": ["node"]                                    /* Specify type package names to be included without being referenced in a source file. */,
 		// "allowUmdGlobalAccess": true,                     /* Allow accessing UMD globals from modules. */
 		// "moduleSuffixes": [],                             /* List of file name suffixes to search when resolving a module. */
 		// "resolveJsonModule": true,                        /* Enable importing .json files. */
